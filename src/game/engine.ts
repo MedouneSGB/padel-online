@@ -1229,9 +1229,15 @@ export class Game {
 
   private updateCamera(dt: number) {
     const u = this.players[0].group.position;
+    const portrait = this.camera.aspect < 0.92;
     let target = new THREE.Vector3(0, 13.2, 16.6);
     let look = new THREE.Vector3(0, 0.2, 0.8);
-    if (this.camView === "behind") {
+    if (this.camView === "match" && portrait) {
+      const followX = clamp(u.x * 0.62 + this.ballPos.x * 0.18, -3.4, 3.4);
+      const followZ = clamp((u.z - 5.8) * 0.4, -2.0, 1.4);
+      target = new THREE.Vector3(followX, 13.2, 16.6 + followZ);
+      look = new THREE.Vector3(followX * 0.75, 0.25, 0.8 + followZ * 0.45);
+    } else if (this.camView === "behind") {
       target = new THREE.Vector3(u.x * 0.4, 4.2, u.z + 6.4);
       look = new THREE.Vector3(this.ballPos.x * 0.3, 0.6, this.ballPos.z);
     } else if (this.camView === "player") {

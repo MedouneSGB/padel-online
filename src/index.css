@@ -893,6 +893,15 @@ body,
   gap: 6px;
 }
 
+.seg.wrap {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.cam-row {
+  align-items: flex-start;
+}
+
 .seg button {
   height: 34px;
   padding: 0 12px;
