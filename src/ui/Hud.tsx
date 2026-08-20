@@ -99,7 +99,8 @@ export function Hud({ game }: { game: Game }) {
             {s.ping}ms
           </span>
           <button className="quit" onClick={() => game.togglePause()}>
-            QUITTER
+            <span className="quit-full">QUITTER</span>
+            <span className="quit-short">II</span>
           </button>
         </div>
       </header>
@@ -199,6 +200,20 @@ export function Hud({ game }: { game: Game }) {
         <DPad onMove={(x, z) => game.setMove(x, z)} onEnd={() => game.setMove(0, 0)} />
       )}
 
+      <button
+        className={`hit-btn ${s.canHit ? "ready" : ""} ${s.charging ? "charging" : ""}`}
+        onPointerDown={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          game.pressHit();
+        }}
+        onPointerUp={() => game.releaseHit()}
+        onPointerCancel={() => game.releaseHit()}
+        onPointerLeave={() => game.releaseHit()}
+      >
+        {s.phase === "serve" ? "SERVIR" : "FRAPPER"}
+      </button>
+
       <div className="shots">
         {SHOTS.filter((sh) => s.shotButtons[sh.id]).map((sh) => (
           <button
@@ -223,11 +238,17 @@ export function Hud({ game }: { game: Game }) {
       </div>
 
       {s.canHit && s.overlay === "none" && s.phase !== "pause" && (
-        <div className="hit-hint">{s.phase === "serve" ? "ESPACE : SERVIR" : "ESPACE : FRAPPER"}</div>
+        <div className="hit-hint">
+          <span className="pc-copy">{s.phase === "serve" ? "ESPACE : SERVIR" : "ESPACE : FRAPPER"}</span>
+          <span className="touch-copy">{s.phase === "serve" ? "APPUIE POUR SERVIR" : "APPUIE POUR FRAPPER"}</span>
+        </div>
       )}
       {s.banner && <div className="banner">{s.banner}</div>}
       {s.tutorial && s.overlay === "none" && (
-        <div className="tutorial">ZQSD / analogique pour bouger · Espace pour frapper · 1-5 pour les coups</div>
+        <div className="tutorial">
+          <span className="pc-copy">ZQSD / analogique pour bouger · Espace pour frapper · 1-5 pour les coups</span>
+          <span className="touch-copy">Joystick pour bouger · Bouton vert pour frapper · Choisis un coup</span>
+        </div>
       )}
 
       {s.overlay === "intro" && (
@@ -430,7 +451,13 @@ function TeamBlock({ names, you }: { names: string[]; you?: boolean }) {
 function DPad({ onMove, onEnd }: { onMove: (x: number, z: number) => void; onEnd: () => void }) {
   const go = (x: number, z: number) => () => onMove(x, z);
   return (
-    <div className="dpad" onPointerUp={onEnd} onPointerLeave={onEnd}>
+    <div
+      className="dpad"
+      onPointerDown={(e) => e.preventDefault()}
+      onPointerUp={onEnd}
+      onPointerLeave={onEnd}
+      onPointerCancel={onEnd}
+    >
       <button className="n" onPointerDown={go(0, -1)} />
       <button className="e" onPointerDown={go(1, 0)} />
       <button className="s" onPointerDown={go(0, 1)} />

@@ -57,6 +57,14 @@ const RESERVED_KEYS = new Set([
   "F12",
 ]);
 
+function prefersTouch() {
+  try {
+    return window.matchMedia("(pointer: coarse)").matches || window.matchMedia("(hover: none)").matches;
+  } catch {
+    return false;
+  }
+}
+
 function loadSettings(): {
   analog: boolean;
   shots: ShotButtons;
@@ -67,7 +75,7 @@ function loadSettings(): {
   try {
     const raw = localStorage.getItem(SETTINGS_KEY);
     if (!raw)
-      return { analog: false, shots: { ...DEFAULT_SHOTS }, keys: { ...DEFAULT_KEYS }, hitKey: DEFAULT_HIT, ballSpeed: 0.85 };
+      return { analog: prefersTouch(), shots: { ...DEFAULT_SHOTS }, keys: { ...DEFAULT_KEYS }, hitKey: DEFAULT_HIT, ballSpeed: 0.85 };
     const parsed = JSON.parse(raw) as {
       analog?: boolean;
       shots?: Partial<ShotButtons>;
@@ -76,14 +84,14 @@ function loadSettings(): {
       ballSpeed?: number;
     };
     return {
-      analog: !!parsed.analog,
+      analog: parsed.analog !== undefined ? !!parsed.analog : prefersTouch(),
       shots: { ...DEFAULT_SHOTS, ...parsed.shots },
       keys: { ...DEFAULT_KEYS, ...parsed.keys },
       hitKey: parsed.hitKey || DEFAULT_HIT,
       ballSpeed: clamp(parsed.ballSpeed ?? 0.85, 0.5, 1.15),
     };
   } catch {
-    return { analog: false, shots: { ...DEFAULT_SHOTS }, keys: { ...DEFAULT_KEYS }, hitKey: DEFAULT_HIT, ballSpeed: 0.85 };
+    return { analog: prefersTouch(), shots: { ...DEFAULT_SHOTS }, keys: { ...DEFAULT_KEYS }, hitKey: DEFAULT_HIT, ballSpeed: 0.85 };
   }
 }
 
@@ -192,6 +200,7 @@ export class Game {
     this.renderer.toneMappingExposure = 1.12;
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.domElement.style.display = "block";
+    this.renderer.domElement.style.touchAction = "none";
     host.appendChild(this.renderer.domElement);
 
     this.scene.background = new THREE.Color(0x070b12);
@@ -277,6 +286,9 @@ export class Game {
     this.onWinPointer = this.onWinPointer.bind(this);
     this.onContext = this.onContext.bind(this);
     window.addEventListener("resize", this.onResize);
+    window.addEventListener("orientationchange", this.onResize);
+    window.visualViewport?.addEventListener("resize", this.onResize);
+    window.visualViewport?.addEventListener("scroll", this.onResize);
     window.addEventListener("keydown", this.onKeyDown);
     window.addEventListener("keyup", this.onKeyUp);
     window.addEventListener("pointerdown", this.onWinPointer, true);
@@ -324,6 +336,14 @@ export class Game {
     this.pointerMove = x !== 0 || z !== 0;
     this.input.x = x;
     this.input.z = z;
+  }
+
+  pressHit() {
+    this.beginCharge();
+  }
+
+  releaseHit() {
+    this.releaseCharge();
   }
 
   setStatsTab(tab: StatsTab) {
@@ -512,6 +532,9 @@ export class Game {
     this.disposed = true;
     cancelAnimationFrame(this.raf);
     window.removeEventListener("resize", this.onResize);
+    window.removeEventListener("orientationchange", this.onResize);
+    window.visualViewport?.removeEventListener("resize", this.onResize);
+    window.visualViewport?.removeEventListener("scroll", this.onResize);
     window.removeEventListener("keydown", this.onKeyDown);
     window.removeEventListener("keyup", this.onKeyUp);
     window.removeEventListener("pointerdown", this.onWinPointer, true);
@@ -1206,10 +1229,12 @@ export class Game {
 
   private updateCamera(dt: number) {
     const u = this.players[0].group.position;
-    let target = new THREE.Vector3(0, 13.2, 16.6);
+    const portrait = this.camera.aspect < 0.85;
+    let target = portrait ? new THREE.Vector3(0, 17.4, 22.2) : new THREE.Vector3(0, 13.2, 16.6);
     let look = new THREE.Vector3(0, 0.2, 0.8);
     if (this.camView === "behind") {
-      target = new THREE.Vector3(u.x * 0.4, 4.2, u.z + 6.4);
+      const z = Math.min(u.z + (portrait ? 3.4 : 2.8), 9.1);
+      target = new THREE.Vector3(u.x * 0.25, portrait ? 3.4 : 2.85, z);
       look = new THREE.Vector3(this.ballPos.x * 0.3, 0.6, this.ballPos.z);
     } else if (this.camView === "player") {
       target = new THREE.Vector3(u.x, 1.72, u.z + 0.55);
@@ -1269,8 +1294,10 @@ export class Game {
     const w = this.host.clientWidth || window.innerWidth;
     const h = this.host.clientHeight || window.innerHeight;
     this.camera.aspect = w / Math.max(1, h);
+    this.camera.fov = this.camera.aspect < 0.85 ? 56 : this.camera.aspect > 1.7 ? 40 : 42;
     this.camera.updateProjectionMatrix();
-    this.renderer.setSize(w, h);
+    this.renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    this.renderer.setSize(w, h, false);
   }
 
   private onKeyDown(e: KeyboardEvent) {

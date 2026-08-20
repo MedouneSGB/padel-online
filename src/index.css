@@ -5,6 +5,10 @@
   --muted: #8b97ab;
   --cyan: #3ce0ff;
   --green: #b6ff3c;
+  --safe-t: env(safe-area-inset-top, 0px);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-l: env(safe-area-inset-left, 0px);
+  --safe-r: env(safe-area-inset-right, 0px);
 }
 
 * {
@@ -15,17 +19,25 @@ html,
 body,
 #root {
   margin: 0;
+  width: 100%;
   height: 100%;
+  height: 100dvh;
   overflow: hidden;
   background: #070b12;
   color: var(--text);
   font-family: "Rajdhani", "Exo 2", sans-serif;
   user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .shell {
   position: relative;
+  width: 100%;
   height: 100%;
+  height: 100dvh;
 }
 
 .viewport,
@@ -34,6 +46,7 @@ body,
   inset: 0;
   width: 100%;
   height: 100%;
+  touch-action: none;
 }
 
 .hud {
@@ -50,6 +63,12 @@ body,
   pointer-events: auto;
 }
 
+.hud input {
+  user-select: text;
+  -webkit-user-select: text;
+  touch-action: manipulation;
+}
+
 .top,
 .scoreboard,
 .panel,
@@ -64,13 +83,13 @@ body,
 
 .top {
   position: absolute;
-  top: 14px;
-  left: 18px;
-  right: 18px;
+  top: calc(10px + var(--safe-t));
+  left: calc(12px + var(--safe-l));
+  right: calc(12px + var(--safe-r));
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
 }
 
 .logo {
@@ -242,6 +261,46 @@ body,
 .icon-btn.on {
   border-color: var(--cyan);
   color: var(--cyan);
+}
+
+.quit-short {
+  display: none;
+}
+
+.hit-btn {
+  display: none;
+  position: absolute;
+  left: 50%;
+  bottom: calc(18px + var(--safe-b));
+  transform: translateX(-50%);
+  width: 78px;
+  height: 78px;
+  border-radius: 50%;
+  border: 3px solid var(--green);
+  background: rgba(8, 12, 22, 0.88);
+  color: var(--green);
+  font-weight: 800;
+  font-size: 11px;
+  letter-spacing: 0.6px;
+  pointer-events: auto;
+  touch-action: none;
+  z-index: 6;
+  place-items: center;
+  text-align: center;
+  line-height: 1.15;
+}
+
+.hit-btn.ready {
+  box-shadow: 0 0 22px rgba(182, 255, 60, 0.45);
+}
+
+.hit-btn.charging {
+  transform: translateX(-50%) scale(1.08);
+  background: rgba(30, 50, 20, 0.95);
+}
+
+.touch-copy {
+  display: none;
 }
 
 .icon-btn.tiny {
@@ -443,14 +502,15 @@ body,
 
 .dpad {
   position: absolute;
-  left: 28px;
-  bottom: 28px;
+  left: calc(16px + var(--safe-l));
+  bottom: calc(16px + var(--safe-b));
   width: 132px;
   height: 132px;
   border-radius: 50%;
   background: rgba(8, 12, 22, 0.75);
   border: 1px solid var(--line);
   pointer-events: auto;
+  touch-action: none;
 }
 
 .dpad button {
@@ -500,8 +560,8 @@ body,
 
 .analog {
   position: absolute;
-  left: 24px;
-  bottom: 24px;
+  left: calc(14px + var(--safe-l));
+  bottom: calc(14px + var(--safe-b));
   width: 148px;
   height: 148px;
   border-radius: 50%;
@@ -525,13 +585,14 @@ body,
 
 .shots {
   position: absolute;
-  right: 22px;
-  bottom: 28px;
+  right: calc(14px + var(--safe-r));
+  bottom: calc(16px + var(--safe-b));
   display: grid;
   grid-template-columns: 86px 86px;
   grid-template-rows: 86px 86px 86px;
   gap: 10px;
   pointer-events: auto;
+  touch-action: none;
 }
 
 .shot {
@@ -594,10 +655,11 @@ body,
 .serve-bar {
   position: absolute;
   left: 50%;
-  bottom: 22px;
+  bottom: calc(18px + var(--safe-b));
   transform: translateX(-50%);
   min-width: 220px;
   text-align: center;
+  max-width: calc(100% - 280px);
 }
 
 .serve-label {
@@ -675,6 +737,8 @@ body,
   place-items: center;
   pointer-events: auto;
   backdrop-filter: blur(8px);
+  touch-action: auto;
+  overflow: auto;
 }
 
 .intro-card {
@@ -909,11 +973,365 @@ body,
   }
 }
 
+@media (pointer: coarse), (max-width: 900px) {
+  .touch-copy {
+    display: inline;
+  }
+  .pc-copy {
+    display: none;
+  }
+  .hit-btn {
+    display: grid;
+  }
+  .hit-hint {
+    display: none;
+  }
+  .ping {
+    display: none;
+  }
+  .quit-full {
+    display: none;
+  }
+  .quit-short {
+    display: inline;
+  }
+  .shot em {
+    display: none;
+  }
+  .tutorial {
+    max-width: calc(100% - 24px);
+    font-size: 13px;
+    text-align: center;
+    top: calc(78px + var(--safe-t));
+  }
+}
+
 @media (max-width: 1100px) {
   .panel.left.stats-panel,
   .panel.right.chat-panel {
     display: flex;
-    top: 86px;
-    max-height: calc(100% - 240px);
+    top: calc(78px + var(--safe-t));
+    max-height: calc(100dvh - 230px - var(--safe-b));
+  }
+}
+
+@media (max-width: 900px) {
+  .logo {
+    display: none;
+  }
+
+  .top {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px;
+  }
+
+  .scoreboard {
+    padding: 6px 8px;
+    gap: 6px;
+    border-radius: 14px;
+    justify-self: start;
+    min-width: 0;
+  }
+
+  .team {
+    min-width: 0;
+    gap: 0 4px;
+  }
+
+  .team small,
+  .names {
+    display: none;
+  }
+
+  .avatars i {
+    width: 22px;
+    height: 22px;
+    font-size: 10px;
+  }
+
+  .games {
+    width: 38px;
+    height: 38px;
+    font-size: 22px;
+    border-radius: 10px;
+  }
+
+  .mid {
+    min-width: 64px;
+  }
+
+  .pts {
+    font-size: 15px;
+  }
+
+  .icon-btn,
+  .quit {
+    height: 32px;
+    padding: 0 8px;
+    font-size: 12px;
+  }
+
+  .top-right {
+    gap: 6px;
+  }
+
+  .shots {
+    grid-template-columns: 58px 58px;
+    grid-template-rows: 58px 58px 58px;
+    gap: 7px;
+  }
+
+  .shot {
+    font-size: 9px;
+    border-width: 2px;
+  }
+
+  .shot span {
+    font-size: 14px;
+  }
+
+  .dpad,
+  .analog {
+    width: 118px;
+    height: 118px;
+  }
+
+  .analog i {
+    width: 50px;
+    height: 50px;
+  }
+
+  .serve-bar {
+    min-width: 0;
+    max-width: 36vw;
+    bottom: calc(96px + var(--safe-b));
+  }
+
+  .serve-label {
+    font-size: 11px;
+    padding: 5px 10px;
+  }
+
+  .banner {
+    font-size: 18px;
+    padding: 8px 14px;
+    letter-spacing: 1px;
+    top: 26%;
+    max-width: calc(100% - 24px);
+    text-align: center;
+  }
+
+  .intro-card {
+    width: min(440px, calc(100% - 16px));
+    padding: 20px 16px;
+    max-height: calc(100dvh - 16px);
+    overflow: auto;
+  }
+
+  .logo.big {
+    font-size: 36px;
+  }
+
+  .logo.big span {
+    font-size: 16px;
+  }
+
+  .settings-card {
+    width: min(640px, calc(100% - 16px));
+  }
+
+  .settings-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .binds {
+    grid-template-columns: 1fr;
+  }
+
+  .overlay {
+    padding: var(--safe-t) var(--safe-r) var(--safe-b) var(--safe-l);
+  }
+}
+
+@media (orientation: portrait) and (max-width: 900px) {
+  .top {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .scoreboard {
+    order: 2;
+    width: 100%;
+    justify-content: space-between;
+    justify-self: stretch;
+  }
+
+  .top-right {
+    order: 1;
+    width: 100%;
+  }
+
+  .panel.left,
+  .panel.right,
+  .panel.left.stats-panel,
+  .panel.right.chat-panel {
+    left: calc(8px + var(--safe-l));
+    right: calc(8px + var(--safe-r));
+    width: auto;
+    top: calc(118px + var(--safe-t));
+    max-height: calc(100dvh - 280px - var(--safe-b));
+  }
+
+  .dpad,
+  .analog {
+    bottom: calc(14px + var(--safe-b));
+    left: calc(10px + var(--safe-l));
+  }
+
+  .shots {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    align-content: flex-end;
+    width: min(200px, 46vw);
+    right: calc(10px + var(--safe-r));
+    bottom: calc(14px + var(--safe-b));
+    grid-template-columns: none;
+    grid-template-rows: none;
+  }
+
+  .shot,
+  .shot-lob,
+  .shot-smash,
+  .shot-service,
+  .shot-volee,
+  .shot-bandeja {
+    width: 56px;
+    height: 56px;
+    grid-column: auto;
+    grid-row: auto;
+  }
+
+  .hit-btn {
+    width: 72px;
+    height: 72px;
+    bottom: calc(20px + var(--safe-b));
+  }
+
+  .serve-bar {
+    bottom: calc(156px + var(--safe-b));
+    max-width: calc(100% - 24px);
+  }
+
+  .tutorial {
+    top: calc(132px + var(--safe-t));
+  }
+}
+
+@media (orientation: landscape) and (max-height: 520px) {
+  .logo {
+    display: none;
+  }
+
+  .top {
+    top: calc(6px + var(--safe-t));
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .scoreboard {
+    padding: 4px 8px;
+  }
+
+  .team small,
+  .names,
+  .ping {
+    display: none;
+  }
+
+  .games {
+    width: 32px;
+    height: 32px;
+    font-size: 18px;
+  }
+
+  .icon-btn,
+  .quit {
+    height: 28px;
+    font-size: 11px;
+  }
+
+  .shots {
+    grid-template-columns: 48px 48px;
+    grid-template-rows: 48px 48px 48px;
+    gap: 5px;
+    bottom: calc(8px + var(--safe-b));
+    right: calc(8px + var(--safe-r));
+  }
+
+  .shot,
+  .shot-lob,
+  .shot-smash,
+  .shot-service,
+  .shot-volee,
+  .shot-bandeja {
+    width: 48px;
+    height: 48px;
+    font-size: 8px;
+    grid-column: auto;
+    grid-row: auto;
+  }
+
+  .shot-lob { grid-column: 1; grid-row: 1; }
+  .shot-smash { grid-column: 2; grid-row: 1; }
+  .shot-service { grid-column: 2; grid-row: 2; }
+  .shot-volee { grid-column: 1; grid-row: 3; }
+  .shot-bandeja { grid-column: 2; grid-row: 3; }
+
+  .dpad,
+  .analog {
+    width: 96px;
+    height: 96px;
+    left: calc(8px + var(--safe-l));
+    bottom: calc(8px + var(--safe-b));
+  }
+
+  .dpad button {
+    width: 32px;
+    height: 32px;
+  }
+
+  .hit-btn {
+    width: 58px;
+    height: 58px;
+    font-size: 9px;
+    bottom: calc(10px + var(--safe-b));
+  }
+
+  .serve-bar {
+    bottom: calc(8px + var(--safe-b));
+    max-width: 30vw;
+  }
+
+  .banner {
+    font-size: 16px;
+    top: 18%;
+  }
+
+  .tutorial {
+    display: none;
+  }
+
+  .panel.left.stats-panel,
+  .panel.right.chat-panel {
+    top: calc(52px + var(--safe-t));
+    max-height: calc(100dvh - 120px - var(--safe-b));
+    width: 200px;
+  }
+
+  .settings-card {
+    max-height: calc(100dvh - 12px);
+    overflow: auto;
   }
 }
