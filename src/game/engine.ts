@@ -1229,12 +1229,10 @@ export class Game {
 
   private updateCamera(dt: number) {
     const u = this.players[0].group.position;
-    const portrait = this.camera.aspect < 0.85;
-    let target = portrait ? new THREE.Vector3(0, 17.4, 22.2) : new THREE.Vector3(0, 13.2, 16.6);
+    let target = new THREE.Vector3(0, 13.2, 16.6);
     let look = new THREE.Vector3(0, 0.2, 0.8);
     if (this.camView === "behind") {
-      const z = Math.min(u.z + (portrait ? 3.4 : 2.8), 9.1);
-      target = new THREE.Vector3(u.x * 0.25, portrait ? 3.4 : 2.85, z);
+      target = new THREE.Vector3(u.x * 0.4, 4.2, u.z + 6.4);
       look = new THREE.Vector3(this.ballPos.x * 0.3, 0.6, this.ballPos.z);
     } else if (this.camView === "player") {
       target = new THREE.Vector3(u.x, 1.72, u.z + 0.55);
@@ -1294,10 +1292,9 @@ export class Game {
     const w = this.host.clientWidth || window.innerWidth;
     const h = this.host.clientHeight || window.innerHeight;
     this.camera.aspect = w / Math.max(1, h);
-    this.camera.fov = this.camera.aspect < 0.85 ? 56 : this.camera.aspect > 1.7 ? 40 : 42;
     this.camera.updateProjectionMatrix();
     this.renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-    this.renderer.setSize(w, h, false);
+    this.renderer.setSize(w, h);
   }
 
   private onKeyDown(e: KeyboardEvent) {
