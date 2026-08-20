@@ -27,8 +27,8 @@ export type PlayerDef = {
 export const PLAYERS: PlayerDef[] = [
   { id: 0, name: "", team: 0, user: true, cap: false, skin: 0xd4a06a, hair: 0x1a120c },
   { id: 1, name: "Aziz", team: 0, user: false, cap: true, skin: 0xb07a4a, hair: 0x111111 },
-  { id: 2, name: "Alex", team: 1, user: false, cap: false, skin: 0xc48a5a, hair: 0x2a1c12 },
-  { id: 3, name: "Bruno", team: 1, user: false, cap: true, skin: 0x8d5a38, hair: 0x0e0e0e },
+  { id: 2, name: "Médoune", team: 1, user: false, cap: false, skin: 0xc48a5a, hair: 0x2a1c12 },
+  { id: 3, name: "Imran", team: 1, user: false, cap: true, skin: 0x8d5a38, hair: 0x0e0e0e },
 ];
 
 export const HOME_POS: [number, number][] = [

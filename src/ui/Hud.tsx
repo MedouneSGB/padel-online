@@ -74,7 +74,7 @@ export function Hud({ game }: { game: Game }) {
             </div>
           </div>
           <div className="games green">{s.gamesAdversaire}</div>
-          <TeamBlock names={[s.names[2] || "Alex", s.names[3] || "Bruno"]} />
+          <TeamBlock names={[s.names[2] || "Médoune", s.names[3] || "Imran"]} />
         </div>
         <div className="top-right">
           <button
@@ -132,20 +132,6 @@ export function Hud({ game }: { game: Game }) {
               </li>
             ))}
           </ul>
-          <h3 className="cam-title">VUE CAMÉRA</h3>
-          <div className="cams">
-            {(
-              [
-                ["match", "Vue match"],
-                ["behind", "Vue derrière"],
-                ["player", "Vue joueur"],
-              ] as [CameraView, string][]
-            ).map(([id, label]) => (
-              <button key={id} className={s.camera === id ? "on" : ""} onClick={() => game.setCamera(id)}>
-                {label}
-              </button>
-            ))}
-          </div>
         </aside>
       )}
 
@@ -283,7 +269,7 @@ export function Hud({ game }: { game: Game }) {
               />
             </label>
             <ul>
-              <li>Toi + Aziz contre Alex & Bruno</li>
+              <li>Toi + Aziz contre Médoune & Imran</li>
               <li>Utilise les murs, le lob et la bandeja</li>
               <li>Un seul service, comme en vrai</li>
             </ul>
@@ -335,6 +321,22 @@ export function Hud({ game }: { game: Game }) {
                     <button className={s.analog ? "on" : ""} onClick={() => game.setAnalog(true)}>
                       Analogique
                     </button>
+                  </div>
+                </div>
+                <div className="setting-row cam-row">
+                  <span>Vue caméra</span>
+                  <div className="seg wrap">
+                    {(
+                      [
+                        ["match", "Match"],
+                        ["behind", "Derrière"],
+                        ["player", "Joueur"],
+                      ] as [CameraView, string][]
+                    ).map(([id, label]) => (
+                      <button key={id} className={s.camera === id ? "on" : ""} onClick={() => game.setCamera(id)}>
+                        {label}
+                      </button>
+                    ))}
                   </div>
                 </div>
                 <div className="setting-block">
