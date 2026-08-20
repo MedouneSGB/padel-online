@@ -15,7 +15,7 @@ import {
 } from "./constants";
 import { BALL_RADIUS, GRAVITY, NET_HEIGHT, computeLaunch } from "./ballPhysics";
 import { createBallTexture } from "./textures";
-import type { CameraView, ChatMessage, HudState, Overlay, ShotButtons, ShotKeys, ShotType, StatsTab } from "./types";
+import type { CameraView, HudState, Overlay, ShotButtons, ShotKeys, ShotType, StatsTab } from "./types";
 import { emptyStats } from "./types";
 import { buildWorld } from "./world";
 
